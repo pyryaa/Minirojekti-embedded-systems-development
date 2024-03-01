@@ -32,9 +32,29 @@ void initHikeWatch()
 
     // Stepcounter
     // Configure IMU
+    Acfg cfg;
+    cfg.odr = BMA4_OUTPUT_DATA_RATE_100HZ;
+    cfg.range = BMA4_ACCEL_RANGE_2G;
+    cfg.bandwidth = BMA4_ACCEL_NORMAL_AVG4;
+    cfg.perf_mode = BMA4_CONTINUOUS_MODE;
+    
+    sensor->accelConfig(cfg);
+    sensor->enableAccel();
+    
+    // set up interrupt for steps 
+    pinMode(BMA423_INT1, INPUT);
+    attachInterrupt(BMA423_INT1, [] {
+        irq = 1; // Set interrupt to set irq value to 1
+    }, RISING); 
+
     // Enable BMA423 step count feature
+    sensor->enableFeature(BMA423_STEP_CNTR, true);
+
     // Reset steps
+    sensor->resetStepCounter();
+
     // Turn on step interrupt
+    sensor->enableStepCountInterrupt();
 
     // Side button
     pinMode(AXP202_INT, INPUT_PULLUP);
@@ -119,7 +139,7 @@ void setup()
     Serial.begin(115200);
     watch = TTGOClass::getWatch();
     watch->begin();
-    watch->openBL();
+    watch->openBL(); // turns on backlight
 
     //Receive objects for easy writing
     tft = watch->tft;
