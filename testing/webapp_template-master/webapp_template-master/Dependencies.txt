@@ -1,0 +1,16 @@
+
+Package		Version
+
+Click		7.0
+Flask		1.1.2001
+Flask-Cors	3.0.8
+Flask-SocketIO	4.2.2001
+Jinja2		2.11.2001
+MarkupSafe	1.1.2001
+Werkzeug	1.0.0
+itsdangerous	1.1.2000
+pip		19.0.3
+python-engineio	3.11.2002
+python-socketio	4.4.2000
+setuptools	40.8.0
+six		1.14.0
