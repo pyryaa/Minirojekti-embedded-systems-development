@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hiking Sessions</title>
+</head>
+<body>
+  <h1>My Hiking Sessions</h1>
+
+  {% if sessions %} <table>
+        <thead>
+            <tr>
+                <th>Session ID</th>
+                <th>Distance (km)</th>
+                <th>Steps</th>
+                <th>Calories Burned</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %} 
+            <tr>
+                <td>{{ session.session_id }}</td>
+                <td>{{ session.km }}</td>
+                <td>{{ session.steps }}</td> 
+                <td>{{ session.burnt_kcal }}</td> 
+            </tr>
+            {% endfor %} 
+        </tbody>
+    </table>
+  {% else %}
+    <p>No sessions found.</p>
+  {% endif %}
+</body>
+</html>
