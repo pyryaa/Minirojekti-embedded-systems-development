@@ -16,3 +16,5 @@ void deleteFile(fs::FS &fs, const char * path);
 void writeFile2(fs::FS &fs, const char * path, const char * message);
 void deleteFile2(fs::FS &fs, const char * path);
 void testFileIO(fs::FS &fs, const char * path);
+
+float stepLength = 0.7; //meters

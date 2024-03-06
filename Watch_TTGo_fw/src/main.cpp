@@ -12,8 +12,9 @@ BluetoothSerial SerialBT;
 TTGOClass *watch;
 TFT_eSPI *tft;
 BMA *sensor;
+bool irq = false;
 
-uint32_t sessionId = 30;
+
 
 volatile uint8_t state;
 volatile bool irqBMA = false;
@@ -21,6 +22,13 @@ volatile bool irqButton = false;
 
 bool sessionStored = false;
 bool sessionSent = false;
+
+//Global vars
+
+unsigned long last = 0;
+uint32_t sessionId = 30;
+unsigned long updateTimeout = 0;
+
 
 void initHikeWatch()
 {
@@ -37,11 +45,12 @@ void initHikeWatch()
     cfg.range = BMA4_ACCEL_RANGE_2G;
     cfg.bandwidth = BMA4_ACCEL_NORMAL_AVG4;
     cfg.perf_mode = BMA4_CONTINUOUS_MODE;
-    
+
+    //Enable bma423 with config
     sensor->accelConfig(cfg);
     sensor->enableAccel();
     
-    // set up interrupt for steps 
+    // Set up interrupt for steps 
     pinMode(BMA423_INT1, INPUT);
     attachInterrupt(BMA423_INT1, [] {
         irq = 1; // Set interrupt to set irq value to 1
@@ -111,6 +120,7 @@ void saveIdToFile(uint16_t id)
     itoa(id, buffer, 10);
     writeFile(LITTLEFS, "/id.txt", buffer);
 }
+
 
 void saveStepsToFile(uint32_t step_count)
 {
@@ -188,7 +198,7 @@ void loop()
                     last = millis();
                     while(1)
                     {
-                        updateTimeout = millis();
+  
 
                         if (SerialBT.available())
                             incomingChar = SerialBT.read();
@@ -258,29 +268,69 @@ void loop()
     {
         /* Hiking session ongoing */
 
+        static uint32_t lastStepCount = 0;
+        uint32_t currentStepCount = sensor->getCounter();
+        float distance = (currentStepCount * stepLength) / 1000.0; // Convert distance to kilometers
+
         watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
         watch->tft->drawString("Starting hike", 45, 100);
         delay(1000);
         watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
 
-        watch->tft->setCursor(45, 70);
-        watch->tft->print("Steps: 0");
-
-        watch->tft->setCursor(45, 100);
-        watch->tft->print("Dist: 0 km");
-
         last = millis();
         updateTimeout = 0;
 
         //reset step-counter
-    }
-    case 4:
+
+     while (state == 3) // Keep running while in active mode
     {
-        //Save hiking session data
-        delay(1000);
-        state = 1;  
-        break;
+        currentStepCount = sensor->getCounter();
+        distance = (currentStepCount * stepLength) / 1000.0; // Update distance
+
+        watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
+        watch->tft->setCursor(45, 70);
+        watch->tft->print("Steps: ");
+        watch->tft->print(currentStepCount);
+
+        watch->tft->setCursor(45, 100);
+        watch->tft->print("Dist: ");
+        watch->tft->print(distance);
+        watch->tft->print(" km");
+
+        delay(1000); // Update every second
+
+        // Check for button press
+        if (irqButton) {
+            irqButton = false;
+            watch->power->readIRQ();
+            if (watch->power->isPEKShortPressIRQ()) {
+                // End the session
+                state = 4;
+            }
+            watch->power->clearIRQ();
+        }
     }
+    break;
+}
+
+    case 4:
+{
+    /* End of hiking session */
+
+    // Save session data to files
+    saveIdToFile(sessionId);
+    saveStepsToFile(sensor->getCounter());
+    saveDistanceToFile(distance);
+
+    // Reset session variables
+    sessionId++;
+    sensor->resetStepCounter();
+
+    // Change state to initial stage
+    state = 1;
+
+    break;
+}
     default:
         // Restart watch
         ESP.restart();
