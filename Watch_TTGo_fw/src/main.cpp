@@ -43,9 +43,9 @@ void initHikeWatch()
     // Stepcounter
     // Configure IMU
     Acfg cfg;
-    cfg.odr = BMA4_OUTPUT_DATA_RATE_100HZ;
+    cfg.odr = BMA4_OUTPUT_DATA_RATE_200HZ;
     cfg.range = BMA4_ACCEL_RANGE_2G;
-    cfg.bandwidth = BMA4_ACCEL_NORMAL_AVG4;
+    cfg.bandwidth = BMA4_ACCEL_OSR4_AVG1;
     cfg.perf_mode = BMA4_CONTINUOUS_MODE;
 
     //Enable bma423 with config
@@ -270,54 +270,77 @@ void loop()
         state = 3;
         break;
     }
-    case 3:
+  case 3:
+{
+    /* Hiking session ongoing */
+    static uint32_t lastStepCount = 0; // Initialize lastStepCount to keep track of the previous step count
+    uint32_t currentStepCount;
+    float currentDistance;
+
+    // Record the current time at the start of the session
+    unsigned long lastUpdate = millis();
+
+    currentStepCount = sensor->getCounter();
+    currentDistance = (currentStepCount * stepLength) / 1000.0; // Update distance
+
+    // No need to clear the screen here if we're going to update it immediately in the loop
+
+    watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
+    watch->tft->drawString("Starting hike", 45, 100);
+    delay(1000); // 
+    
+    watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
+    watch->tft->setCursor(45, 70);
+    watch->tft->print("Steps: ");
+    watch->tft->print(currentStepCount);
+    watch->tft->setCursor(45, 100);
+    watch->tft->print("Dist: ");
+    watch->tft->print(currentDistance);
+    watch->tft->print(" km");
+
+    while (state == 3) // Keep running while in active mode
     {
-        /* Hiking session ongoing */
+            if( millis() - lastUpdate >= 1000){  // Update the step count once a second
+                uint32_t previousStepCount = currentStepCount;
+                currentStepCount = sensor->getCounter();
+                
+            // Only update the display if the current step count has increased since the last update, to prevent flickering + battery saving
+                if (currentStepCount > previousStepCount) 
+            {
+                    currentDistance = (currentStepCount * stepLength) / 1000.0; // Update distance
+                    watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
+                    watch->tft->setCursor(45, 70);
+                    watch->tft->print("Steps: ");
+                    watch->tft->print(currentStepCount);
 
-        static uint32_t lastStepCount = 0;
-        uint32_t currentStepCount = sensor->getCounter();
-        float distance = (currentStepCount * stepLength) / 1000.0; // Convert distance to kilometers
+                    watch->tft->setCursor(45, 100);
+                    watch->tft->print("Dist: ");
+                    watch->tft->print(currentDistance);
+                    watch->tft->print(" km");
 
-        watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
-        watch->tft->drawString("Starting hike", 45, 100);
-        delay(1000);
-        watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
+                lastStepCount = currentStepCount; // Update lastStepCount with the current step count
+            }
+            lastUpdate = millis(); // Update the last update time
+        }
 
-        last = millis();
-        updateTimeout = 0;
-
-        //reset step-counter
-
-     while (state == 3) // Keep running while in active mode
-    {
-        currentStepCount = sensor->getCounter();
-        distance = (currentStepCount * stepLength) / 1000.0; // Update distance
-
-        watch->tft->fillRect(0, 0, 240, 240, TFT_BLACK);
-        watch->tft->setCursor(45, 70);
-        watch->tft->print("Steps: ");
-        watch->tft->print(currentStepCount);
-
-        watch->tft->setCursor(45, 100);
-        watch->tft->print("Dist: ");
-        watch->tft->print(distance);
-        watch->tft->print(" km");
-
-        delay(1000); // Update every second
-
-        // Check for button press
-        if (irqButton) {
+        if (irqButton)
+        {
             irqButton = false;
             watch->power->readIRQ();
-            if (watch->power->isPEKShortPressIRQ()) {
+            if (watch->power->isPEKShortPressIRQ())
+            {
                 // End the session
                 state = 4;
             }
             watch->power->clearIRQ();
         }
+
+         delay(10); // Delay to prevent the loop from running too fast + battery saving
     }
     break;
 }
+
+
 
     case 4:
 {
