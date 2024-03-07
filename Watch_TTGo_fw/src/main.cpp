@@ -12,9 +12,6 @@ BluetoothSerial SerialBT;
 TTGOClass *watch;
 TFT_eSPI *tft;
 BMA *sensor;
-bool irq = false;
-
-
 
 volatile uint8_t state;
 volatile bool irqBMA = false;
@@ -28,7 +25,7 @@ bool sessionSent = false;
 unsigned long last = 0;
 uint32_t sessionId = 30;
 unsigned long updateTimeout = 0;
-
+unsigned long distance = 0;
 
 void initHikeWatch()
 {
@@ -53,7 +50,7 @@ void initHikeWatch()
     // Set up interrupt for steps 
     pinMode(BMA423_INT1, INPUT);
     attachInterrupt(BMA423_INT1, [] {
-        irq = 1; // Set interrupt to set irq value to 1
+        irqBMA = 1; // Set interrupt to set irq value to 1
     }, RISING); 
 
     // Enable BMA423 step count feature
@@ -120,7 +117,6 @@ void saveIdToFile(uint16_t id)
     itoa(id, buffer, 10);
     writeFile(LITTLEFS, "/id.txt", buffer);
 }
-
 
 void saveStepsToFile(uint32_t step_count)
 {
@@ -213,6 +209,7 @@ void loop()
                             exitSync = true;
                             break;
                         }
+
                         else if ((millis() - updateTimeout > 2000))
                         {
                             Serial.println("Waiting for timeout to expire");
