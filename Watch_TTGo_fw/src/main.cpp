@@ -1,4 +1,6 @@
 #include "config.h"
+#include <LilyGoWatch.h>
+
 
 // Check if Bluetooth configs are enabled
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
@@ -29,7 +31,7 @@ unsigned long distance = 0;
 
 void initHikeWatch()
 {
-    // LittleFS
+    // LittleFS   
     if(!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED)){
         Serial.println("LITTLEFS Mount Failed");
         return;
@@ -78,7 +80,7 @@ void initHikeWatch()
 void sendDataBT(fs::FS &fs, const char * path)
 {
     /* Sends data via SerialBT */
-    File file = fs.open(path);
+    fs::File file = fs.open(path);
     if(!file || file.isDirectory()){
         Serial.println("- failed to open file for reading");
         return;
@@ -100,15 +102,19 @@ void sendSessionBT()
     // Sending session id
     sendDataBT(LITTLEFS, "/id.txt");
     SerialBT.write(';');
+
     // Sending steps
     sendDataBT(LITTLEFS, "/steps.txt");
     SerialBT.write(';');
+
     // Sending distance
     sendDataBT(LITTLEFS, "/distance.txt");
     SerialBT.write(';');
+
     // Send connection termination char
     SerialBT.write('\n');
 }
+
 
 
 void saveIdToFile(uint16_t id)
