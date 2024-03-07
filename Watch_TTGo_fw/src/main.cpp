@@ -28,6 +28,9 @@ unsigned long last = 0;
 uint32_t sessionId = 30;
 unsigned long updateTimeout = 0;
 unsigned long distance = 0;
+float stepLength = 0.7; //meters
+
+
 
 void initHikeWatch()
 {
