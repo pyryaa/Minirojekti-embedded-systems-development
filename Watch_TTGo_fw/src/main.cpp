@@ -1,6 +1,4 @@
 #include "config.h"
-#include <LilyGoWatch.h>
-
 
 // Check if Bluetooth configs are enabled
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
@@ -122,6 +120,8 @@ void sendSessionBT()
 
 void saveIdToFile(uint16_t id)
 {
+    sessionStored = true; // Something is now stored
+    
     char buffer[10];
     itoa(id, buffer, 10);
     writeFile(LITTLEFS, "/id.txt", buffer);
