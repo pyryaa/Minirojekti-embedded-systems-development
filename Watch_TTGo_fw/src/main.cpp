@@ -204,6 +204,7 @@ void loop()
                     while(1)
                     {
   
+                        updateTimeout = millis();
 
                         if (SerialBT.available())
                             incomingChar = SerialBT.read();
@@ -300,7 +301,7 @@ void loop()
 
     while (state == 3) // Keep running while in active mode
     {
-            if( millis() - lastUpdate >= 1000){  // Update the step count once a second
+            if( millis() - lastUpdate >= 10000){  // Update the step count once a second
                 uint32_t previousStepCount = currentStepCount;
                 currentStepCount = sensor->getCounter();
                 
@@ -335,7 +336,7 @@ void loop()
             watch->power->clearIRQ();
         }
 
-         delay(10); // Delay to prevent the loop from running too fast + battery saving
+         delay(1000); // Delay to prevent the loop from running too fast + battery saving
     }
     break;
 }
