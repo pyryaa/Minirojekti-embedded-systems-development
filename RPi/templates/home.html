@@ -1,33 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Hiking Sessions</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiking Sessions</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .sortable:after {
+            content: '\25b2'; /* Default: arrow up */
+        }
+        .sortable.asc:after {
+            content: '\25bc'; /* On asc sort: arrow down */
+        }
+        .sortable.desc:after {
+            content: '\25b2'; /* On desc sort: arrow up */
+        }
+    </style>
 </head>
-<body>
-  <h1>My Hiking Sessions</h1>
-
-  {% if sessions %} <table>
-        <thead>
-            <tr>
-                <th>Session ID</th>
-                <th>Distance (km)</th>
-                <th>Steps</th>
-                <th>Calories Burned</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for session in sessions %} 
-            <tr>
-                <td>{{ session.session_id }}</td>
-                <td>{{ session.km }}</td>
-                <td>{{ session.steps }}</td> 
-                <td>{{ session.burnt_kcal }}</td> 
-            </tr>
-            {% endfor %} 
-        </tbody>
-    </table>
-  {% else %}
-    <p>No sessions found.</p>
-  {% endif %}
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="container mx-auto mt-8">
+        <h1 class="text-4xl mb-8 text-center font-bold">My Hiking Sessions</h1>
+        <div class="mb-4">
+            <input type="text" id="searchInput" onkeyup="filterSessions()" placeholder="Search for sessions.." class="px-3 py-2 border-2 border-gray-300 rounded-md">
+        </div>
+        {% if sessions %}
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full text-left whitespace-no-wrap" id="sessionsTable">
+                <thead>
+                    <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
+                        <th class="px-4 py-3 cursor-pointer sortable" onclick="sortTable(0, this)">Session ID</th>
+                        <th class="px-4 py-3 cursor-pointer sortable" onclick="sortTable(1, this)">Distance (km)</th>
+                        <th class="px-4 py-3 cursor-pointer sortable" onclick="sortTable(2, this)">Steps</th>
+                        <th class="px-4 py-3 cursor-pointer sortable" onclick="sortTable(3, this)">Calories Burned</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y">
+                    {% for session in sessions %}
+                    <tr class="text-gray-700">
+                        <td class="px-4 py-3">{{ session.id }}</td>
+                        <td class="px-4 py-3">{{ session.km }}</td>
+                        <td class="px-4 py-3">{{ session.steps }}</td>
+                        <td class="px-4 py-3">{{ session.kcal | int }}</td> <!-- Truncate decimals -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center">No sessions found.</p>
+        {% endif %}
+    </div>
+    <script>
+      function sortTable(column, th) {
+          var table, rows, switching, i, x, y, shouldSwitch, dir = "asc", switchcount = 0;
+          table = document.getElementById("sessionsTable");
+          switching = true;
+          // Clear any previously added asc/desc classes
+          document.querySelectorAll('.sortable').forEach(function(header) {
+              if (header !== th) header.classList.remove('asc', 'desc');
+          });
+          while (switching) {
+              switching = false;
+              rows = table.rows;
+              for (i = 1; i < (rows.length - 1); i++) {
+                  shouldSwitch = false;
+                  x = rows[i].getElementsByTagName("TD")[column];
+                  y = rows[i + 1].getElementsByTagName("TD")[column];
+                  if (dir == "asc") {
+                      if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
+                          shouldSwitch = true;
+                          break;
+                      }
+                  } else if (dir == "desc") {
+                      if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
+                          shouldSwitch = true;
+                          break;
+                      }
+                  }
+              }
+              if (shouldSwitch) {
+                  rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                  switching = true;
+                  switchcount++;
+              } else {
+                  if (switchcount == 0 && dir == "asc") {
+                      dir = "desc";
+                      switching = true;
+                  }
+              }
+          }
+          if (switchcount > 0) {
+              th.classList.toggle('asc', dir === 'desc');
+              th.classList.toggle('desc', dir === 'asc');
+          }
+      }
+  
+      function filterSessions() {
+          var input, filter, table, tr, td, i;
+          input = document.getElementById("searchInput");
+          filter = input.value.toUpperCase();
+          table = document.getElementById("sessionsTable");
+          tr = table.getElementsByTagName("tr");
+          for (i = 1; i < tr.length; i++) {
+              td = tr[i].getElementsByTagName("td")[0]; // Only search in the first column (Session ID)
+              if (td) {
+                  if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                      tr[i].style.display = "";
+                  } else {
+                      tr[i].style.display = "none";
+                  }
+              }            
+          }
+      }
+  </script>
 </body>
 </html>
