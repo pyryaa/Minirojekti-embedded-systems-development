@@ -20,8 +20,8 @@ This README provides instructions on setting up and using a webserver on a Raspb
 
 ### Accessing Transferred Data on the Webserver
 
-1. **On a device connected to the same network as the Raspberry Pi, open a web browser**
-2. **Enter the IP address provided by the `RunHikingWatchAPP`**
+- **On a device connected to the same network as the Raspberry Pi, open a web browser**
+- **Enter the IP address provided by the `RunHikingWatchAPP`**
 
  Past session data should now be accessible.
 
@@ -29,8 +29,8 @@ This README provides instructions on setting up and using a webserver on a Raspb
 
 #### Starting Your Watch
 
-1. **Power on the watch to see the "Hiking Watch" prompt**
-2. **Press the side button to initiate a new hiking session**
+- **Power on the watch to see the "Hiking Watch" prompt**
+- **Press the side button to initiate a new hiking session**
 - Note: This action will overwrite any untransferred session data.
 
 #### During a Hiking Session
