@@ -25,16 +25,18 @@ This README provides instructions on setting up and using a webserver on a Raspb
 
 ### Accessing Transferred Data on the Webserver
 
-- On a device connected to the same network as the Raspberry Pi, open a web browser.
-- Enter the IP address provided by the `wserver.py` script.
-- Past session data should now be accessible.
+1. **On a device connected to the same network as the Raspberry Pi, open a web browser**
+2. **Enter the IP address provided by the `wserver.py` script**
+
+ Past session data should now be accessible.
 
 ### LilyGo Hiking Smartwatch Usage
 
 #### Starting Your Watch
 
-- Power on the watch to see the "Hiking Watch" prompt.
-- Press the side button to initiate a new hiking session. Note: This action will overwrite any untransferred session data.
+1. **Power on the watch to see the "Hiking Watch" prompt**
+2. **Press the side button to initiate a new hiking session**
+- Note: This action will overwrite any untransferred session data.
 
 #### During a Hiking Session
 
