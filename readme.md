@@ -8,13 +8,8 @@ This README provides instructions on setting up and using a webserver on a Raspb
 
 #### Starting the Webserver on Raspberry Pi (Linux)
 
-1. **Activate Virtual Environment:**
-   - Open a terminal on your Raspberry Pi.
-   - Navigate to the `webserver/rpi/` directory.
-   - Run `source venv/bin/activate` to activate the Python virtual environment.
-
-2. **Start the Webserver:**
-   - Execute `python wserver.py` to start the webserver.
+   **Starting the Webserver:**
+   - Execute `RunHikingWatchAPP.sh` to start the webserver.
    - Note the IP address displayed in the terminal. This is needed to access the webserver from a web browser.
 
 #### Accessing Hike Session Data on the Webserver
