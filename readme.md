@@ -15,13 +15,13 @@ This README provides instructions on setting up and using a webserver on a Raspb
 #### Accessing Hike Session Data on the Webserver
 
 - Ensure your device is connected to the same network as the Raspberry Pi.
-- Open a web browser and enter the IP address provided by the `wserver.py` script.
+- Open a web browser and enter the IP address provided by the `RunHikingWatchAPP` script.
 - You can now view past session data, including detailed statistics and session information.
 
 ### Accessing Transferred Data on the Webserver
 
 1. **On a device connected to the same network as the Raspberry Pi, open a web browser**
-2. **Enter the IP address provided by the `wserver.py` script**
+2. **Enter the IP address provided by the `RunHikingWatchAPP`**
 
  Past session data should now be accessible.
 
